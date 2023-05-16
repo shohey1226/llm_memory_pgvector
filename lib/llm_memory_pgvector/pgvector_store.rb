@@ -46,9 +46,15 @@ module LlmMemoryPgvector
       @conn.exec(sql)
     end
 
-    def search      
-    end    
-
+    def search(query: [], k: 3)
+       result = @conn.exec_params("SELECT * FROM #{@index_name} ORDER BY #{@vector_key} <-> $1 LIMIT #{k}", [query])       
+       result.map { |row| 
+        {
+          content: row["content"],
+          metadata: row["metadata"].transform_keys(&:to_sym)
+        }
+      }
+    end
 
   end
 end
