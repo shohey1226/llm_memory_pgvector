@@ -47,11 +47,12 @@ module LlmMemoryPgvector
     end
 
     def search(query: [], k: 3)
-       result = @conn.exec_params("SELECT * FROM #{@index_name} ORDER BY #{@vector_key} <-> $1 LIMIT #{k}", [query])       
+       result = @conn.exec_params("SELECT *, 1 - (#{@vector_key} <-> '#{query}') AS similarity  FROM #{@index_name} ORDER BY #{@vector_key} <-> $1 LIMIT #{k}", [query])       
        result.map { |row| 
         {
           content: row["content"],
-          metadata: row["metadata"].transform_keys(&:to_sym)
+          metadata: row["metadata"].transform_keys(&:to_sym),
+          similarity: row["similarity"]
         }
       }
     end
