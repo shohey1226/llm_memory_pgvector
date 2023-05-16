@@ -29,15 +29,21 @@ module LlmMemoryPgvector
     end
 
     def create_index(dim: 1536)
-      @conn.exec("CREATE TABLE #{@index_name} (id bigserial PRIMARY KEY, content TEXT, metadata JSON, embedding vector(#{dim}))")
+      @conn.exec("CREATE TABLE #{@index_name} (id bigserial PRIMARY KEY, #{@content_key} TEXT, #{@metadata_key} JSON, #{@vector_key} vector(#{dim}))")
     end
 
     def drop_index
       @conn.exec("DROP TABLE #{@index_name}")
     end
 
-    # data = [{ content: "", vector: [], metadata: {} }]
+    # data = [{ content: "", vector: [], metadata: {} },,]
     def add(data: [])
+      values = data.map { |row| "('#{row[@content_key.to_sym]}', '#{row[@metadata_key.to_sym].to_json}', '#{row[@vector_key.to_sym]}')" }.join(",")
+      sql = <<-SQL
+        INSERT INTO llm_memory (#{@content_key}, #{@metadata_key}, #{@vector_key}) 
+        VALUES #{values}
+      SQL
+      @conn.exec(sql)
     end
 
     def search      
