@@ -29,13 +29,15 @@ module LlmMemoryPgvector
     end
 
     def create_index(dim: 1536)
-      @conn.exec("CREATE TABLE #{@index_name} (id bigserial PRIMARY KEY, embedding vector(#{dim}))")
+      @conn.exec("CREATE TABLE #{@index_name} (id bigserial PRIMARY KEY, content TEXT, metadata JSON, embedding vector(#{dim}))")
     end
 
     def drop_index
+      @conn.exec("DROP TABLE #{@index_name}")
     end
 
-    def add
+    # data = [{ content: "", vector: [], metadata: {} }]
+    def add(data: [])
     end
 
     def search      
