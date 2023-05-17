@@ -1,8 +1,6 @@
-# LlmMemoryPgvector
+# LLM Memory pgvector
 
-TODO: Delete this and the text below, and describe your gem
-
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/llm_memory_pgvector`. To experiment with that code, run `bin/console` for an interactive prompt.
+This is a Ruby plugin for the [llm_memory](https://github.com/shohey1226/llm_memory) gem which allows it to use a pgvector-powered Postgres database as a vector store. [pgvector](https://github.com/pgvector/pgvector) is an open-source vector similarity search tool for Postgres databases. It provides efficient storage and lookup for high-dimensional vector data.
 
 ## Installation
 
