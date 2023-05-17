@@ -1,11 +1,9 @@
-
 require "pg"
 require "pgvector"
 require "llm_memory/store"
 
 module LlmMemoryPgvector
   class PgvectorStore
-
     include LlmMemory::Store
 
     register_store :pgvector
@@ -20,8 +18,8 @@ module LlmMemoryPgvector
       @content_key = content_key
       @vector_key = vector_key
       @metadata_key = metadata_key
-      @conn = PG::Connection.new(LlmMemoryPgvector.configuration.pg_uri)
-      #pp @conn
+      @conn = PG::Connection.new(LlmMemoryPgvector.configuration.pg_url)
+      # pp @conn
       registry = PG::BasicTypeRegistry.new.define_default_types
       Pgvector::PG.register_vector(registry)
       @conn.type_map_for_results = PG::BasicTypeMapForResults.new(@conn, registry: registry)
@@ -38,8 +36,10 @@ module LlmMemoryPgvector
 
     # data = [{ content: "", vector: [], metadata: {} },,]
     def add(data: [])
-      values = data.map { |row| "('#{row[@content_key.to_sym]}', '#{row[@metadata_key.to_sym].to_json}', '#{row[@vector_key.to_sym]}')" }.join(",")
-      sql = <<-SQL
+      values = data.map { |row|
+        "('#{row[@content_key.to_sym]}', '#{row[@metadata_key.to_sym].to_json}', '#{row[@vector_key.to_sym]}')"
+      }.join(",")
+      sql = <<~SQL
         INSERT INTO llm_memory (#{@content_key}, #{@metadata_key}, #{@vector_key}) 
         VALUES #{values}
       SQL
@@ -47,8 +47,8 @@ module LlmMemoryPgvector
     end
 
     def search(query: [], k: 3)
-       result = @conn.exec_params("SELECT *, 1 - (#{@vector_key} <-> '#{query}') AS similarity  FROM #{@index_name} ORDER BY #{@vector_key} <-> $1 LIMIT #{k}", [query])       
-       result.map { |row| 
+      result = @conn.exec_params("SELECT *, 1 - (#{@vector_key} <-> '#{query}') AS similarity  FROM #{@index_name} ORDER BY #{@vector_key} <-> $1 LIMIT #{k}", [query])
+      result.map { |row|
         {
           content: row["content"],
           metadata: row["metadata"].transform_keys(&:to_sym),
@@ -56,6 +56,5 @@ module LlmMemoryPgvector
         }
       }
     end
-
   end
 end

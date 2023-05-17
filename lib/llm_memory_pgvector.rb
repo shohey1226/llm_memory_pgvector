@@ -5,17 +5,18 @@ require_relative "llm_memory_pgvector/pgvector_store"
 
 module LlmMemoryPgvector
   class Error < StandardError; end
+
   class ConfigurationError < Error; end
 
   class Configuration
-    attr_writer :pg_uri
-    
+    attr_writer :pg_url
+
     def initialize
-      @pg_uri = nil
+      @pg_url = nil
     end
 
-    def pg_uri
-      return @pg_uri if @pg_uri
+    def pg_url
+      return @pg_url if @pg_url
 
       error_text = "Missing Connection URIs See https://www.postgresql.org/docs/current/libpq-connect.html#LIBPQ-CONNSTRING"
       raise ConfigurationError, error_text
@@ -34,7 +35,6 @@ module LlmMemoryPgvector
     yield(configuration)
   end
   # LlmMemoryPgvector.configure do |c|
-  #   c.pg_uri = "postgresql://postgres:foobar@localhost"
+  #   c.pg_url = "postgresql://postgres:foobar@localhost"
   # end
-
 end

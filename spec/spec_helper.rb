@@ -12,4 +12,10 @@ RSpec.configure do |config|
   config.expect_with :rspec do |c|
     c.syntax = :expect
   end
+
+  config.before(:all) do
+    LlmMemoryPgvector.configure do |c|
+      c.pg_url = ENV.fetch("PGVECTOR_DB_URL", "postgresql://postgres:foobar@localhost")
+    end
+  end
 end
