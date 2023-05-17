@@ -31,7 +31,7 @@ module LlmMemoryPgvector
     end
 
     def drop_index
-      @conn.exec("DROP TABLE #{@index_name}")
+      @conn.exec("DROP TABLE IF EXISTS #{@index_name}")
     end
 
     # data = [{ content: "", vector: [], metadata: {} },,]
@@ -40,7 +40,7 @@ module LlmMemoryPgvector
         "('#{row[@content_key.to_sym]}', '#{row[@metadata_key.to_sym].to_json}', '#{row[@vector_key.to_sym]}')"
       }.join(",")
       sql = <<~SQL
-        INSERT INTO llm_memory (#{@content_key}, #{@metadata_key}, #{@vector_key}) 
+        INSERT INTO #{@index_name} (#{@content_key}, #{@metadata_key}, #{@vector_key}) 
         VALUES #{values}
       SQL
       @conn.exec(sql)

@@ -3,7 +3,7 @@ require "llm_memory/store"
 require "llm_memory_pgvector/pgvector_store"
 
 RSpec.describe LlmMemoryPgvector::PgvectorStore do
-  let(:store) { described_class.new }
+  let(:store) { described_class.new(index_name: "test_pgvector") }
 
   describe "#initialize" do
     it "registers the store" do
@@ -28,14 +28,14 @@ RSpec.describe LlmMemoryPgvector::PgvectorStore do
 
   describe "#create_index" do
     it "executes the correct SQL to create the index" do
-      expect(store.instance_variable_get(:@conn)).to receive(:exec).with("CREATE TABLE llm_memory (id bigserial PRIMARY KEY, content TEXT, metadata JSON, vector vector(1536))")
+      expect(store.instance_variable_get(:@conn)).to receive(:exec).with("CREATE TABLE test_pgvector (id bigserial PRIMARY KEY, content TEXT, metadata JSON, vector vector(1536))")
       store.create_index
     end
   end
 
   describe "#drop_index" do
     it "executes the correct SQL to drop the index" do
-      expect(store.instance_variable_get(:@conn)).to receive(:exec).with("DROP TABLE llm_memory")
+      expect(store.instance_variable_get(:@conn)).to receive(:exec).with("DROP TABLE IF EXISTS test_pgvector")
       store.drop_index
     end
   end
@@ -44,7 +44,7 @@ RSpec.describe LlmMemoryPgvector::PgvectorStore do
     let(:data) { [{content: "content", vector: "vector", metadata: {}}] }
 
     it "executes the correct SQL to add data" do
-      expect(store.instance_variable_get(:@conn)).to receive(:exec).with("INSERT INTO llm_memory (content, metadata, vector) \nVALUES ('content', '{}', 'vector')\n")
+      expect(store.instance_variable_get(:@conn)).to receive(:exec).with("INSERT INTO test_pgvector (content, metadata, vector) \nVALUES ('content', '{}', 'vector')\n")
       store.add(data: data)
     end
   end
@@ -60,8 +60,18 @@ RSpec.describe LlmMemoryPgvector::PgvectorStore do
     end
 
     it "executes the correct SQL to search data" do
-      expect(store.instance_variable_get(:@conn)).to receive(:exec_params).with("SELECT *, 1 - (vector <-> '[1, 2, 3]') AS similarity  FROM llm_memory ORDER BY vector <-> $1 LIMIT 3", [query])
+      expect(store.instance_variable_get(:@conn)).to receive(:exec_params).with("SELECT *, 1 - (vector <-> '[1, 2, 3]') AS similarity  FROM test_pgvector ORDER BY vector <-> $1 LIMIT 3", [query])
       store.search(query: query, k: k)
+    end
+  end
+
+  describe "Integration test" do
+    it "can add and search" do
+      store.drop_index
+      store.create_index(dim: 3)
+      store.add(data: [{content: "a", metadata: {a: "a"}, vector: [1, 1, 1]}, {content: "b", metadata: {b: "b"}, vector: [2, 2, 2]}])
+      related_docs = store.search(query: [1, 2, 1], k: 1)
+      expect(related_docs.first[:content]).to eq("a")
     end
   end
 end
