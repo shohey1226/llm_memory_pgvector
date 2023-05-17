@@ -78,10 +78,12 @@ GEM
       lint_roller (~> 1.0)
       rubocop-performance (~> 1.16.0)
     tokenizers (0.3.3-arm64-darwin)
+    tokenizers (0.3.3-x86_64-linux)
     unicode-display_width (2.4.2)
 
 PLATFORMS
   arm64-darwin-22
+  x86_64-linux
 
 DEPENDENCIES
   llm_memory
