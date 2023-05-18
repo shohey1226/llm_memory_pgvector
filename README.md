@@ -29,12 +29,15 @@ LlmMemoryPgvector.configuration.pg_url = "postgres://user:password@localhost/myd
 
 ## Usage
 
-Please
+This should be used with `llm_memory`. You can refer to [README of llm_memory](https://github.com/shohey1226/llm_memory)
 
 ```
+# in case it's not loaded, pleaes load them
 require llm_memory
-hippocampus = LlmMemory::Hippocampus.new(:pgvector)
+require llm_memory_pgvector
 
+hippocampus = LlmMemory::Hippocampus.new(:pgvector, chunk_size: 512)
+..
 ```
 
 ## Development

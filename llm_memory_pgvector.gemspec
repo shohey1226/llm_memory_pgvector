@@ -9,7 +9,7 @@ Gem::Specification.new do |spec|
   spec.email = ["shoheik@cpan.org"]
 
   spec.summary = "A LLM Memory plugin for pgvector"
-  spec.description = "Use Postgres/pgvector as  vector server"
+  spec.description = "A Ruby plugin for the llm_memory gem which allows it to use a pgvector-powered Postgres database as a vector store."
   spec.homepage = "https://github.com/shohey1226/llm_memory_pgvector"
   spec.license = "MIT"
   spec.required_ruby_version = ">= 2.6.0"
@@ -30,7 +30,8 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   # Uncomment to register a new dependency of your gem
-  # spec.add_dependency "example-gem", "~> 1.0"
+  spec.add_dependency "llm_memory", "~> 0.1.7"
+  spec.add_dependency "pgvector", "~> 0.2.0"
 
   # For more information and examples about making a new gem, check out our
   # guide at: https://bundler.io/guides/creating_gem.html
