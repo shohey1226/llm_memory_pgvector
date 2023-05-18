@@ -8,15 +8,34 @@ TODO: Replace `UPDATE_WITH_YOUR_GEM_NAME_PRIOR_TO_RELEASE_TO_RUBYGEMS_ORG` with 
 
 Install the gem and add to the application's Gemfile by executing:
 
-    $ bundle add UPDATE_WITH_YOUR_GEM_NAME_PRIOR_TO_RELEASE_TO_RUBYGEMS_ORG
+    $ bundle add UPDATE_WITH_YOUR_GEM_NAME_PRIOR_TO_RELEASE_TO_RUBYGEMS_ORGg
 
 If bundler is not being used to manage dependencies, install the gem by executing:
 
     $ gem install UPDATE_WITH_YOUR_GEM_NAME_PRIOR_TO_RELEASE_TO_RUBYGEMS_ORG
 
+Plese don't forget to add `llm_memory`
+
+    $ bundle add llm_memory
+
+## Configuration
+
+You can configure the Postgres connection URL by setting the `pg_url` in `LlmMemoryPgvector.configuration`.
+If you use Rails, please put this in initializers.
+
+```ruby
+LlmMemoryPgvector.configuration.pg_url = "postgres://user:password@localhost/mydb"
+```
+
 ## Usage
 
-TODO: Write usage instructions here
+Please
+
+```
+require llm_memory
+hippocampus = LlmMemory::Hippocampus.new(:pgvector)
+
+```
 
 ## Development
 
@@ -26,7 +45,7 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/llm_memory_pgvector. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [code of conduct](https://github.com/[USERNAME]/llm_memory_pgvector/blob/master/CODE_OF_CONDUCT.md).
+Bug reports and pull requests are welcome on GitHub at https://github.com/shohey1226/llm_memory_pgvector. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [code of conduct](https://github.com/shohey1226/llm_memory_pgvector/blob/master/CODE_OF_CONDUCT.md).
 
 ## License
 
