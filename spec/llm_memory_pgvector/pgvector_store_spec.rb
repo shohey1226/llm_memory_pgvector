@@ -41,10 +41,10 @@ RSpec.describe LlmMemoryPgvector::PgvectorStore do
   end
 
   describe "#add" do
-    let(:data) { [{content: "content", vector: "vector", metadata: {}}] }
+    let(:data) { [{content: "Mike's pen", vector: [1, 2, 3], metadata: {}}] }
 
     it "executes the correct SQL to add data" do
-      expect(store.instance_variable_get(:@conn)).to receive(:exec).with("INSERT INTO test_pgvector (content, metadata, vector) \nVALUES ('content', '{}', 'vector')\n")
+      expect(store.instance_variable_get(:@conn)).to receive(:exec_params).with("INSERT INTO test_pgvector (content, metadata, vector) VALUES ($1, $2, $3)", ["Mike's pen", "{}", [1, 2, 3]])
       store.add(data: data)
     end
   end
@@ -69,9 +69,9 @@ RSpec.describe LlmMemoryPgvector::PgvectorStore do
     it "can add and search" do
       store.drop_index
       store.create_index(dim: 3)
-      store.add(data: [{content: "a", metadata: {a: "a"}, vector: [1, 1, 1]}, {content: "b", metadata: {b: "b"}, vector: [2, 2, 2]}])
+      store.add(data: [{content: "Mike's pen", metadata: {a: "a"}, vector: [1, 1, 1]}, {content: "b", metadata: {b: "b"}, vector: [2, 2, 2]}])
       related_docs = store.search(query: [1, 2, 1], k: 1)
-      expect(related_docs.first[:content]).to eq("a")
+      expect(related_docs.first[:content]).to eq("Mike's pen")
     end
   end
 end

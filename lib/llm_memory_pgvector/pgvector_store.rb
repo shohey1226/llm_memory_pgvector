@@ -43,14 +43,12 @@ module LlmMemoryPgvector
 
     # data = [{ content: "", vector: [], metadata: {} },,]
     def add(data: [])
-      values = data.map { |row|
-        "('#{row[@content_key.to_sym]}', '#{row[@metadata_key.to_sym].to_json}', '#{row[@vector_key.to_sym]}')"
-      }.join(",")
-      sql = <<~SQL
-        INSERT INTO #{@index_name} (#{@content_key}, #{@metadata_key}, #{@vector_key}) 
-        VALUES #{values}
-      SQL
-      @conn.exec(sql)
+      data.each do |row|
+        @conn.exec_params(
+          "INSERT INTO #{@index_name} (#{@content_key}, #{@metadata_key}, #{@vector_key}) VALUES ($1, $2, $3)",
+          [row[@content_key.to_sym], row[@metadata_key.to_sym].to_json, row[@vector_key.to_sym]]
+        )
+      end
     end
 
     def search(query: [], k: 3)
