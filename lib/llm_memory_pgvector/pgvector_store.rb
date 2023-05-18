@@ -30,6 +30,13 @@ module LlmMemoryPgvector
       @conn.exec("CREATE TABLE #{@index_name} (id bigserial PRIMARY KEY, #{@content_key} TEXT, #{@metadata_key} JSON, #{@vector_key} vector(#{dim}))")
     end
 
+    def index_exists?
+      @conn.exec("SELECT 1 FROM #{@index_name}")
+      true
+    rescue PG::Error
+      false
+    end
+
     def drop_index
       @conn.exec("DROP TABLE IF EXISTS #{@index_name}")
     end

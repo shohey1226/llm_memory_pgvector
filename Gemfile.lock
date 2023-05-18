@@ -3,6 +3,7 @@ PATH
   specs:
     llm_memory_pgvector (0.1.0)
       llm_memory (~> 0.1.7)
+      pg (~> 1.5.3)
       pgvector (~> 0.2.0)
 
 GEM
