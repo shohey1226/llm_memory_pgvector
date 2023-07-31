@@ -41,6 +41,28 @@ module LlmMemoryPgvector
       @conn.exec("DROP TABLE IF EXISTS #{@index_name}")
     end
 
+    def list(ids = [])
+      result = if ids.empty? || ids
+        @conn.exec("SELECT * FROM #{@index_name}")
+      else
+        placeholders = ids.map.with_index(1) { |_, i| "$#{i}" }.join(",")
+        @conn.exec_params("SELECT * FROM #{@index_name} WHERE id IN (#{placeholders})", ids)
+      end
+      result.entries
+    end
+
+    def delete(id)
+      result = @conn.exec_params("DELETE FROM #{@index_name} WHERE id = $1", [id])
+      result.cmd_tuples > 0
+    end
+
+    def delete_all
+      @conn.exec("DELETE FROM #{@index_name}")
+      true
+    rescue PG::Error
+      false
+    end
+
     # data = [{ content: "", vector: [], metadata: {} },,]
     def add(data: [])
       data.each do |row|
@@ -49,6 +71,7 @@ module LlmMemoryPgvector
           [row[@content_key.to_sym], row[@metadata_key.to_sym].to_json, row[@vector_key.to_sym]]
         )
       end
+      list
     end
 
     def search(query: [], k: 3)

@@ -69,9 +69,18 @@ RSpec.describe LlmMemoryPgvector::PgvectorStore do
     it "can add and search" do
       store.drop_index
       store.create_index(dim: 3)
-      store.add(data: [{content: "Mike's pen", metadata: {a: "a"}, vector: [1, 1, 1]}, {content: "b", metadata: {b: "b"}, vector: [2, 2, 2]}])
+      docs = store.add(data: [{content: "Mike's pen", metadata: {a: "a"}, vector: [1, 1, 1]}, {content: "b", metadata: {b: "b"}, vector: [2, 2, 2]}])
+      expect(docs).to eq([
+        {"id" => 1, "content" => "Mike's pen", "metadata" => {"a" => "a"}, "vector" => [1.0, 1.0, 1.0]},
+        {"id" => 2, "content" => "b", "metadata" => {"b" => "b"}, "vector" => [2.0, 2.0, 2.0]}
+      ])
+      expect(store.list([1])).to eq([{"id" => 1, "content" => "Mike's pen", "metadata" => {"a" => "a"}, "vector" => [1.0, 1.0, 1.0]}])
       related_docs = store.search(query: [1, 2, 1], k: 1)
       expect(related_docs.first[:content]).to eq("Mike's pen")
+      expect(store.delete(docs.first["id"])).to eq(true)
+      expect(store.list.size).to eq(1)
+      expect(store.delete_all).to eq(true)
+      expect(store.list.size).to eq(0)
     end
   end
 end
