@@ -42,7 +42,7 @@ module LlmMemoryPgvector
     end
 
     def list(ids = [])
-      result = if ids.empty? || ids
+      result = if ids.empty?
         @conn.exec("SELECT * FROM #{@index_name}")
       else
         placeholders = ids.map.with_index(1) { |_, i| "$#{i}" }.join(",")
