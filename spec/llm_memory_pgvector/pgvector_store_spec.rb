@@ -5,6 +5,10 @@ require "llm_memory_pgvector/pgvector_store"
 RSpec.describe LlmMemoryPgvector::PgvectorStore do
   let(:store) { described_class.new(index_name: "test_pgvector") }
 
+  before do
+    store.drop_index
+  end
+
   describe "#initialize" do
     it "registers the store" do
       expect(LlmMemory::StoreManager.stores[:pgvector]).to eq(described_class)
@@ -44,6 +48,7 @@ RSpec.describe LlmMemoryPgvector::PgvectorStore do
     let(:data) { [{content: "Mike's pen", vector: [1, 2, 3], metadata: {}}] }
 
     it "executes the correct SQL to add data" do
+      store.create_index(dim: 3)
       expect(store.instance_variable_get(:@conn)).to receive(:exec_params).with("INSERT INTO test_pgvector (content, metadata, vector) VALUES ($1, $2, $3)", ["Mike's pen", "{}", [1, 2, 3]])
       store.add(data: data)
     end
@@ -67,7 +72,6 @@ RSpec.describe LlmMemoryPgvector::PgvectorStore do
 
   describe "Integration test" do
     it "can add and search" do
-      store.drop_index
       store.create_index(dim: 3)
       docs = store.add(data: [{content: "Mike's pen", metadata: {a: "a"}, vector: [1, 1, 1]}, {content: "b", metadata: {b: "b"}, vector: [2, 2, 2]}])
       expect(docs).to eq([
