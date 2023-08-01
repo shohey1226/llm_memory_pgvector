@@ -5,10 +5,6 @@ require "llm_memory_pgvector/pgvector_store"
 RSpec.describe LlmMemoryPgvector::PgvectorStore do
   let(:store) { described_class.new(index_name: "test_pgvector") }
 
-  before do
-    store.drop_index
-  end
-
   describe "#initialize" do
     it "registers the store" do
       expect(LlmMemory::StoreManager.stores[:pgvector]).to eq(described_class)
@@ -46,10 +42,8 @@ RSpec.describe LlmMemoryPgvector::PgvectorStore do
 
   describe "#add" do
     let(:data) { [{content: "Mike's pen", vector: [1, 2, 3], metadata: {}}] }
-
     it "executes the correct SQL to add data" do
-      store.create_index(dim: 3)
-      expect(store.instance_variable_get(:@conn)).to receive(:exec_params).with("INSERT INTO test_pgvector (content, metadata, vector) VALUES ($1, $2, $3)", ["Mike's pen", "{}", [1, 2, 3]])
+      expect(store.instance_variable_get(:@conn)).to receive(:exec_params).with("INSERT INTO test_pgvector (content, metadata, vector) VALUES ($1, $2, $3) RETURNING id", ["Mike's pen", "{}", [1, 2, 3]])
       store.add(data: data)
     end
   end
@@ -71,14 +65,18 @@ RSpec.describe LlmMemoryPgvector::PgvectorStore do
   end
 
   describe "Integration test" do
-    it "can add and search" do
+    before do
+      store.drop_index
       store.create_index(dim: 3)
+    end
+
+    it "can add and search" do
       docs = store.add(data: [{content: "Mike's pen", metadata: {a: "a"}, vector: [1, 1, 1]}, {content: "b", metadata: {b: "b"}, vector: [2, 2, 2]}])
       expect(docs).to eq([
         {"id" => 1, "content" => "Mike's pen", "metadata" => {"a" => "a"}, "vector" => [1.0, 1.0, 1.0]},
         {"id" => 2, "content" => "b", "metadata" => {"b" => "b"}, "vector" => [2.0, 2.0, 2.0]}
       ])
-      expect(store.list([1])).to eq([{"id" => 1, "content" => "Mike's pen", "metadata" => {"a" => "a"}, "vector" => [1.0, 1.0, 1.0]}])
+      expect(store.list(id: [1])).to eq([{"id" => 1, "content" => "Mike's pen", "metadata" => {"a" => "a"}, "vector" => [1.0, 1.0, 1.0]}])
       related_docs = store.search(query: [1, 2, 1], k: 1)
       expect(related_docs.first[:content]).to eq("Mike's pen")
       expect(store.delete(docs.first["id"])).to eq(true)

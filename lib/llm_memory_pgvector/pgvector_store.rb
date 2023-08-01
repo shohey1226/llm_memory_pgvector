@@ -41,12 +41,12 @@ module LlmMemoryPgvector
       @conn.exec("DROP TABLE IF EXISTS #{@index_name}")
     end
 
-    def list(ids = [])
-      result = if ids.empty?
+    def list(id: [])
+      result = if id.empty?
         @conn.exec("SELECT * FROM #{@index_name}")
       else
-        placeholders = ids.map.with_index(1) { |_, i| "$#{i}" }.join(",")
-        @conn.exec_params("SELECT * FROM #{@index_name} WHERE id IN (#{placeholders})", ids)
+        placeholders = id.map.with_index(1) { |_, i| "$#{i}" }.join(",")
+        @conn.exec_params("SELECT * FROM #{@index_name} WHERE id IN (#{placeholders})", id)
       end
       result.entries
     end
@@ -54,6 +54,11 @@ module LlmMemoryPgvector
     def delete(id)
       result = @conn.exec_params("DELETE FROM #{@index_name} WHERE id = $1", [id])
       result.cmd_tuples > 0
+    end
+
+    def get(id)
+      result = @conn.exec_params("SELECT * FROM #{@index_name} WHERE id = $1", [id])
+      result.entries.first
     end
 
     def delete_all
@@ -65,13 +70,15 @@ module LlmMemoryPgvector
 
     # data = [{ content: "", vector: [], metadata: {} },,]
     def add(data: [])
+      new_ids = []
       data.each do |row|
-        @conn.exec_params(
-          "INSERT INTO #{@index_name} (#{@content_key}, #{@metadata_key}, #{@vector_key}) VALUES ($1, $2, $3)",
+        result = @conn.exec_params(
+          "INSERT INTO #{@index_name} (#{@content_key}, #{@metadata_key}, #{@vector_key}) VALUES ($1, $2, $3) RETURNING id",
           [row[@content_key.to_sym], row[@metadata_key.to_sym].to_json, row[@vector_key.to_sym]]
         )
+        new_ids << result[0]["id"].to_i if result && result[0] && result[0]["id"]
       end
-      list
+      list(id: new_ids)
     end
 
     def search(query: [], k: 3)
