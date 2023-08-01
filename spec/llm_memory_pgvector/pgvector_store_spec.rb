@@ -43,6 +43,8 @@ RSpec.describe LlmMemoryPgvector::PgvectorStore do
   describe "#add" do
     let(:data) { [{content: "Mike's pen", vector: [1, 2, 3], metadata: {}}] }
     it "executes the correct SQL to add data" do
+      store.drop_index
+      store.create_index(dim: 3)
       expect(store.instance_variable_get(:@conn)).to receive(:exec_params).with("INSERT INTO test_pgvector (content, metadata, vector) VALUES ($1, $2, $3) RETURNING id", ["Mike's pen", "{}", [1, 2, 3]])
       store.add(data: data)
     end
