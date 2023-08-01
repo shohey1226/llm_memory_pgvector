@@ -41,7 +41,8 @@ module LlmMemoryPgvector
       @conn.exec("DROP TABLE IF EXISTS #{@index_name}")
     end
 
-    def list(id: [])
+    def list(*args)
+      id = (args.length == 1) ? args.first[:id] : []
       result = if id.empty?
         @conn.exec("SELECT * FROM #{@index_name}")
       else
