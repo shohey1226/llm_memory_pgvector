@@ -1,0 +1,18 @@
+version: '3'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      PGVECTOR_DB_URL: postgresql://postgres:foobar@pgvector
+    volumes:
+      - ../..:/workspaces:cached
+    command: sleep infinity
+  pgvector:
+    image: ankane/pgvector:latest
+    environment:
+      POSTGRES_PASSWORD: foobar
+    ports:
+      - "5432:5432"

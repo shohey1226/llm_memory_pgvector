@@ -1,0 +1,33 @@
+{
+  "name": "llm-memory-pgvector on GitHub Codespaces",
+  "dockerComposeFile": "../docker-compose.yml",
+  "service": "app",
+  "runServices": [
+    "app",
+    "pgvector"
+  ],
+  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+  "features": {
+    "ghcr.io/devcontainers/features/sshd:1": {}
+  },
+  "onCreateCommand": "git config --global --add safe.directory ${containerWorkspaceFolder}",
+  "postCreateCommand": ".devcontainer/post-create.sh",
+  "waitFor": "postCreateCommand",
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "": {
+          "editor.formatOnSave": true,
+          "[ruby]": {
+            "editor.defaultFormatter": "testdouble.vscode-standard-ruby"
+          },
+          "standardRuby.autofix": true
+        },
+      },
+      "extensions": [
+        "EditorConfig.EditorConfig",
+        "testdouble.vscode-standard-ruby"
+      ]
+    }
+  }
+}

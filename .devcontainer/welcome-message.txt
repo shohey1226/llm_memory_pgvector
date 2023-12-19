@@ -1,0 +1,7 @@
+👋 Welcome to "LLM Memory pgvector" in GitHub Codespaces!
+
+🛠️ Your environment is fully set up with everything you need to integrate pgvector with the llm_memory Ruby gem.
+
+🔍 To make the most of VS Code, use the Command Palette (Cmd/Ctrl + Shift + P or F1) for efficient navigation and feature access.
+
+📝 Feel free to start editing and experimenting. Run your Ruby application as you normally would, and we'll handle the rest, ensuring seamless integration with the pgvector-powered Postgres database for your vector storage needs.
